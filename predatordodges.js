@@ -1,28 +1,33 @@
 !function() {
 
+    // Default settings
+    let settings = {
+        scriptActive: false,
+        currentScript: 1,
+    };
+
+    // Create settings provider
+    function createSettingsProvider() {
+        let defaultValues = { scriptActive: false, currentScript: 1 };
+        return new SettingsProvider(defaultValues, (newSettings) => {
+            settings = newSettings;
+        });
+    }
+
     // Register the extension with StarMash
     SWAM.registerExtension({
         name: "Predator Dodges",
         id: "PredatorDodges",
         description: "Advanced dodging functionality for Starmash.",
         author: "Monarch",
-        version: "1.0"
+        version: "1.0",
+        settingsProvider: createSettingsProvider()
     });
 
-    // This line will be executed as soon as the extension is loaded
-    console.log("Predator Dodges: Extension loaded.");
-
-    // Subscribe to game events
-    SWAM.on("gameRunning", function() {
-        console.log("Predator Dodges: Game is running.");
-        initDodging();
-    });
-
+    // Initialize dodging
     function initDodging() {
         let heldKey = null;
         let lastPressedKey = null;
-        let currentScript = 1;
-        let isRunning = false;
 
         // Event listener for keydown
         document.addEventListener('keydown', function(event) {
@@ -32,30 +37,30 @@
 
             // Start the script
             if (event.key === 'p') {
-                isRunning = true;
-                sendMessageToBackground('Predator dodges begins');
+                settings.scriptActive = true;
+                SWAM.showMessage("Predator dodges begins");
                 console.log("Predator dodges begins");
             }
             // Pause the script
             else if (event.code === 'Pause') {
-                isRunning = false;
-                sendMessageToBackground('Predator dodges ends');
+                settings.scriptActive = false;
+                SWAM.showMessage("Predator dodges ends");
                 console.log("Predator dodges ends");
             }
 
             // Switch between scripts
-            if (isRunning && event.key >= '1' && event.key <= '9') {
-                currentScript = parseInt(event.key);
-                console.log(`Switched to script ${currentScript}`);
-            } else if (isRunning && event.key === '0') {
-                currentScript = 10;
-                console.log(`Switched to script ${currentScript}`);
+            if (settings.scriptActive && event.key >= '1' && event.key <= '9') {
+                settings.currentScript = parseInt(event.key);
+                console.log(`Switched to script ${settings.currentScript}`);
+            } else if (settings.scriptActive && event.key === '0') {
+                settings.currentScript = 10;
+                console.log(`Switched to script ${settings.currentScript}`);
             }
 
             // Execute the current script with 'q' and 'e'
-            if (isRunning && (event.key === 'q' || event.key === 'e')) {
+            if (settings.scriptActive && (event.key === 'q' || event.key === 'e')) {
                 let arrowSide = event.key === 'q' ? 'ArrowLeft' : 'ArrowRight';
-                executeScript(currentScript, 'ArrowDown', arrowSide);
+                executeScript(settings.currentScript, 'ArrowDown', arrowSide);
             }
         });
 
@@ -277,8 +282,9 @@
             document.dispatchEvent(keyUpEvent);
         }
 
-        function sendMessageToBackground(message) {
-            chrome.runtime.sendMessage({ type: 'updateStatus', message: message });
-        }
     }
+
+    // Initialize the script
+    initDodging();
+
 }();
