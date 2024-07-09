@@ -294,7 +294,7 @@
     SWAM.registerExtension({
         name: 'Predator Dodges',
         id: 'predatorDodges',
-        description: 'Add Predator dodges to your spaceship!',
+        description: 'Automate dodges for Predator ship.',
         version: '1.0.0',
         author: 'Monarch'
     });
