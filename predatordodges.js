@@ -15,8 +15,8 @@
         document.addEventListener('keydown', onKeydown);
         document.addEventListener('keyup', onKeyup);
 
-        // Add UI elements for messages if needed
-        // You can customize this part to display messages in the StarMash UI
+        createStatusUI();
+        updateStatusUI();
     }
 
     function onKeydown(event) {
@@ -34,21 +34,25 @@
             isRunning = true;
             displayMessage('Predator dodges begins');
             console.log("Predator dodges begins");
+            updateStatusUI();
         }
         // Pause the script
         else if (event.code === 'Pause') {
             isRunning = false;
             displayMessage('Predator dodges ends');
             console.log("Predator dodges ends");
+            updateStatusUI();
         }
 
         // Switch between scripts
         if (isRunning && event.key >= '1' && event.key <= '9') {
             currentScript = parseInt(event.key);
             console.log(`Switched to script ${currentScript}`);
+            updateStatusUI();
         } else if (isRunning && event.key === '0') {
             currentScript = 10;
             console.log(`Switched to script ${currentScript}`);
+            updateStatusUI();
         }
 
         // Execute the current script with 'q' and 'e'
@@ -280,11 +284,34 @@
         UI.addChatMessage(message); // Display the message in StarMash chat
     }
 
+    function createStatusUI() {
+        const statusUI = document.createElement('div');
+        statusUI.id = 'predator-dodges-status';
+        statusUI.style.position = 'absolute';
+        statusUI.style.top = '10px';
+        statusUI.style.right = '10px';
+        statusUI.style.padding = '10px';
+        statusUI.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        statusUI.style.color = 'white';
+        statusUI.style.zIndex = '1000';
+        document.body.appendChild(statusUI);
+    }
+
+    function updateStatusUI() {
+        const statusUI = document.getElementById('predator-dodges-status');
+        if (statusUI) {
+            statusUI.innerHTML = `
+                <div>Predator Dodges: ${isRunning ? 'ON' : 'OFF'}</div>
+                <div>Current Script: ${isRunning ? currentScript : 'N/A'}</div>
+            `;
+        }
+    }
+
     // Register the extension with StarMash
     SWAM.registerExtension({
         name: 'Predator Dodges',
         id: 'predatorDodges',
-        description: 'Add different dodges to your Predator ship!',
+        description: 'Advanced dodging techniques for Airmash.',
         version: '1.0.0',
         author: 'Monarch'
     });
