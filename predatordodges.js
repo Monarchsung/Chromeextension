@@ -13,16 +13,15 @@
   uiElement.id = 'scriptStatus';
   uiElement.style.position = 'fixed';
   uiElement.style.top = '10px';
-  uiElement.style.right = '20%'; // Adjusted to be between middle and far right
+  uiElement.style.right = 'calc(40% - 5in)'; // Adjusted to be 5 inches more to the right
   uiElement.style.padding = '10px';
   uiElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
   uiElement.style.color = 'white';
   uiElement.style.zIndex = '1000';
-  uiElement.style.display = 'none';
+  uiElement.style.display = 'block'; // Always display
   document.body.appendChild(uiElement);
 
   function updateUI() {
-    uiElement.style.display = isRunning ? 'block' : 'none';
     uiElement.innerHTML = `Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${currentScript}`;
   }
 
@@ -299,7 +298,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
@@ -330,4 +329,8 @@
     version: '1.0',
     settingsProvider: settingsProvider()
   });
+
+  // Initialize the extension
+  updateUI();
+
 })();
