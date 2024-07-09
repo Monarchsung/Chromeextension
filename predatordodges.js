@@ -21,7 +21,7 @@
   document.body.appendChild(statusUI);
 
   function updateUI() {
-    statusUI.innerHTML = `Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${currentScript}`;
+    statusUI.innerHTML = `Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${isRunning ? currentScript : 'N/A'}`;
   }
 
   document.addEventListener('keydown', function(event) {
@@ -297,7 +297,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
