@@ -3,9 +3,8 @@
 
     let heldKey = null;
     let lastPressedKey = null;
-    let currentScript = 1;
+    let currentScript = null;
     let isRunning = false;
-    let useDropdown = false;
 
     // Create the UI element
     const uiElement = document.createElement('div');
@@ -22,7 +21,7 @@
 
     function updateUI() {
         uiElement.style.display = 'block';
-        uiElement.innerHTML = `Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${currentScript !== null ? currentScript : 'N/A'}`;
+        uiElement.innerHTML = `Script Status: ${isRunning ? 'running' : 'paused'}<br>Current Script: ${currentScript !== null ? currentScript : 'n/a'}`;
     }
 
     document.addEventListener('keydown', function (event) {
@@ -45,6 +44,7 @@
         // Pause the script
         else if (event.code === 'Pause') {
             isRunning = false;
+            currentScript = null; // Set currentScript to null when paused
             updateUI();
             displayMessage('Predator dodges ends');
             console.log("Predator dodges ends");
@@ -290,43 +290,12 @@
         UI.addChatMessage(message); // Display the message in StarMash chat
     }
 
-    // StarMash Extension
-    function settingsProvider() {
-        let sp = new SettingsProvider({
-            selectedScript: 1,
-            useDropdown: false
-        }, onSettingsChanged);
-
-        let section = sp.addSection('Predator Dodges Settings');
-        section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
-        section.addValuesField('selectedScript', 'Select Script', {
-            1: 'Script 1',
-            2: 'Script 2',
-            3: 'Script 3',
-            4: 'Script 4',
-            5: 'Script 5',
-            6: 'Script 6',
-            7: 'Script 7',
-            8: 'Script 8',
-            9: 'Script 9',
-            10: 'Script 10'
-        });
-
-        return sp;
-    }
-
-    function onSettingsChanged(settings) {
-        currentScript = settings.selectedScript;
-        useDropdown = settings.useDropdown;
-        updateUI();
-    }
-
+    // Register the extension with StarMash
     SWAM.registerExtension({
         name: 'Predator Dodges',
-        id: 'predator.dodges',
-        description: 'Automate dodges for Predator ship.',
-        author: 'Monarch',
-        version: '1.0',
-        settingsProvider: settingsProvider()
+        id: 'predatorDodges',
+        description: 'Add Predator dodges to your spaceship!',
+        version: '1.0.0',
+        author: 'Monarch'
     });
 })();
