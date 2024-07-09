@@ -17,6 +17,7 @@
   statusUI.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
   statusUI.style.color = 'white';
   statusUI.style.zIndex = '1000';
+  statusUI.style.borderRadius = '10px'; // Rounded corners
   document.body.appendChild(statusUI);
 
   function updateUI() {
@@ -296,7 +297,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
