@@ -1,89 +1,19 @@
-"use strict";
+(function () {
 
-(function() {
-  // Settings
-  const DEFAULT_SETTINGS = {
+  /* VARIABLES */
+  let settings = {
     scriptActive: false,
     currentScript: 1,
   };
 
-  let settings = DEFAULT_SETTINGS;
-
-  const settingsProvider = () => {
-    let sp = new SettingsProvider(DEFAULT_SETTINGS, newSettings => {
-      settings = newSettings;
-    });
-
-    let section = sp.addSection('Predator Dodges');
-    section.addBoolean('scriptActive', 'Enable Predator Dodges');
-    section.addString('currentScript', 'Current Script');
-
-    return sp;
-  };
-
-  const extensionConfig = {
-    name: 'Predator Dodges',
-    id: 'PredatorDodges',
-    description: 'Automates dodging maneuvers for the Predator.',
-    author: 'Monarch',
-    version: '1.0',
-    settingsProvider: settingsProvider()
-  };
-
-  /* VARIABLES */
-  const PI2 = Math.PI * 2;
-  let prevAngle,
-      $laserPointer;
+  let heldKey = null;
+  let lastPressedKey = null;
 
   /* INIT */
+
   function init() {
-    initHTML();
-    initStyle();
-    initGame();
     initEvents();
-  }
-
-  function initHTML() {
-    const html = '<div id="laser-pointer"></div>';
-    $('body').append(html);
-    toggle(false);
-  }
-
-  function initStyle() {
-    const style = `
-      <style>
-        #laser-pointer {
-          display: block;
-          height: 1px;
-          width: calc(50vw * 1.5);
-          opacity: .25;
-          background: white;
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform-origin: 0;
-        }
-      </style>
-    `;
-    $('head').append(style);
-  }
-
-  function initGame() {
-    $laserPointer = $('#laser-pointer');
-
-    SWAM.one('playerAdded', Player => {
-      const proto = Object.getPrototypeOf(Player);
-      const prev = proto.update;
-
-      proto.update = function(...args) {
-        prev.call(this, ...args);
-
-        const me = Players.getMe();
-        if (me && this.id === me.id && settings.scriptActive) {
-          update(this.rot);
-        }
-      };
-    });
+    initGame();
   }
 
   function initEvents() {
@@ -91,13 +21,29 @@
     SWAM.on('keyup', onKeyup);
   }
 
+  function initGame() {
+    SWAM.one('playerAdded', Player => {
+      const proto = Object.getPrototypeOf(Player),
+            prev = proto.update;
+
+      proto.update = function(...args) {
+        prev.call(this, ...args);
+        const me = Players.getMe();
+        if (me && this.id === me.id && settings.scriptActive) {
+          // Execute script based on currentScript
+        }
+      };
+    });
+  }
+
   SWAM.on('gameLoaded', init);
 
   /* EVENTS */
+
   function onKeydown(event) {
     if (event.originalEvent.key === 'p') {
       event.stopImmediatePropagation();
-      toggleScriptActive(true);
+      toggleScriptActive();
     } else if (event.originalEvent.code === 'Pause') {
       event.stopImmediatePropagation();
       toggleScriptActive(false);
@@ -120,6 +66,7 @@
   }
 
   /* API */
+
   function toggleScriptActive(force) {
     settings.scriptActive = force === undefined ? !settings.scriptActive : force;
     if (settings.scriptActive) {
@@ -128,25 +75,6 @@
     } else {
       SWAM.showMessage("Predator dodges ends");
       console.log("Predator dodges ends");
-    }
-  }
-
-  function update(angle) {
-    if (!settings.scriptActive) return;
-    if (angle === prevAngle) return;
-
-    const deg = (360 * angle / PI2) - 90;
-    $laserPointer[0].style.transform = `rotate(${deg}deg)`;
-
-    prevAngle = angle;
-  }
-
-  function toggle(force) {
-    settings.scriptActive = force === undefined ? !settings.scriptActive : force;
-    if (settings.scriptActive) {
-      UI.show('#laser-pointer');
-    } else {
-      UI.hide('#laser-pointer');
     }
   }
 
@@ -242,30 +170,24 @@
       which: arrowSide === 'ArrowLeft' ? 37 : 39
     });
 
+    // Dispatch keydown events for Ctrl and ArrowDown
     document.dispatchEvent(ctrlKeyDownEvent);
     document.dispatchEvent(arrowDownEvent);
-    document.dispatchEvent(arrowSideEvent);
 
-    setTimeout(() => {
-      document.dispatchEvent(arrowDownUpEvent);
-      document.dispatchEvent(arrowSideUpEvent);
-      document.dispatchEvent(ctrlKeyUpEvent);
-    }, holdTime);
-
-    setTimeout(() => {
-      document.dispatchEvent(ctrlKeyDownEvent);
-      document.dispatchEvent(arrowDownEvent);
+    // After specified hold time, dispatch ArrowSide keydown event while still holding Ctrl and ArrowDown
+    setTimeout(function() {
       document.dispatchEvent(arrowSideEvent);
 
-      setTimeout(() => {
+      // After specified release time, dispatch keyup events to release the keys
+      setTimeout(function() {
+        document.dispatchEvent(ctrlKeyUpEvent);
         document.dispatchEvent(arrowDownUpEvent);
         document.dispatchEvent(arrowSideUpEvent);
-        document.dispatchEvent(ctrlKeyUpEvent);
-      }, holdTime);
-    }, releaseTime);
+      }, releaseTime); // Hold keys for the specified release time
+    }, holdTime); // Hold ArrowDown for the specified hold time before pressing ArrowLeft or ArrowRight
   }
 
-  function holdCtrlArrowSingle(arrow, time) {
+  function holdCtrlArrowSingle(arrowKey, releaseTime) {
     const ctrlKeyDownEvent = new KeyboardEvent('keydown', {
       bubbles: true,
       cancelable: true,
@@ -284,34 +206,72 @@
       which: 17
     });
 
-    const arrowDownEvent = new KeyboardEvent('keydown', {
+    const arrowKeyDownEvent = new KeyboardEvent('keydown', {
       bubbles: true,
       cancelable: true,
-      key: arrow,
-      code: arrow,
-      keyCode: 40,
-      which: 40
+      key: arrowKey,
+      code: arrowKey,
+      keyCode: arrowKey === 'ArrowUp' ? 38 : 40,
+      which: arrowKey === 'ArrowUp' ? 38 : 40
     });
 
-    const arrowDownUpEvent = new KeyboardEvent('keyup', {
+    const arrowKeyUpEvent = new KeyboardEvent('keyup', {
       bubbles: true,
       cancelable: true,
-      key: arrow,
-      code: arrow,
-      keyCode: 40,
-      which: 40
+      key: arrowKey,
+      code: arrowKey,
+      keyCode: arrowKey === 'ArrowUp' ? 38 : 40,
+      which: arrowKey === 'ArrowUp' ? 38 : 40
     });
 
+    // Dispatch keydown events for Ctrl and the specified arrow key
     document.dispatchEvent(ctrlKeyDownEvent);
-    document.dispatchEvent(arrowDownEvent);
+    document.dispatchEvent(arrowKeyDownEvent);
 
-    setTimeout(() => {
-      document.dispatchEvent(arrowDownUpEvent);
+    // After specified release time, dispatch keyup events to release the keys
+    setTimeout(function() {
       document.dispatchEvent(ctrlKeyUpEvent);
-    }, time);
+      document.dispatchEvent(arrowKeyUpEvent);
+    }, releaseTime); // Hold keys for the specified release time
   }
 
-  // Register mod
-  SWAM.registerExtension(extensionConfig);
+  function holdKey(key) {
+    heldKey = key;
+
+    const keyDownEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: key,
+      code: key,
+      keyCode: key === 'w' ? 87 : 83, // 87 for 'w', 83 for 's'
+      which: key === 'w' ? 87 : 83
+    });
+
+    // Dispatch keydown event
+    document.dispatchEvent(keyDownEvent);
+  }
+
+  function releaseKey(key) {
+    const keyUpEvent = new KeyboardEvent('keyup', {
+      bubbles: true,
+      cancelable: true,
+      key: key,
+      code: key,
+      keyCode: key === 'w' ? 87 : 83, // 87 for 'w', 83 for 's'
+      which: key === 'w' ? 87 : 83
+    });
+
+    // Dispatch keyup event
+    document.dispatchEvent(keyUpEvent);
+  }
+
+  /* REGISTER */
+  SWAM.registerExtension({
+    name: 'Predator Dodges',
+    id: 'Monarch.predatorDodges',
+    description: 'Advanced dodging techniques for Airmash.',
+    version: '1.0.0',
+    author: 'Monarch'
+  });
 
 }());
