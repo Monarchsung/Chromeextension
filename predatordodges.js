@@ -6,13 +6,14 @@
   let currentScript = 1;
   let isRunning = false;
   let useDropdown = false;
+  let selectedScript = 1;
 
   // Create the UI element
   const uiElement = document.createElement('div');
   uiElement.id = 'scriptStatus';
   uiElement.style.position = 'fixed';
   uiElement.style.top = '10px';
-  uiElement.style.right = '25%'; // Adjusted to be between middle and far right
+  uiElement.style.right = '40%'; // Adjusted to be between middle and far right
   uiElement.style.padding = '10px';
   uiElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
   uiElement.style.color = 'white';
@@ -64,7 +65,7 @@
     // Execute the current script with 'q' and 'e'
     if (isRunning && (event.key === 'q' || event.key === 'e')) {
       let arrowSide = event.key === 'q' ? 'ArrowLeft' : 'ArrowRight';
-      executeScript(currentScript, 'ArrowDown', arrowSide);
+      executeScript(useDropdown ? selectedScript : currentScript, 'ArrowDown', arrowSide);
     }
   });
 
@@ -316,7 +317,7 @@
   }
 
   function onSettingsChanged(settings) {
-    currentScript = settings.selectedScript;
+    selectedScript = settings.selectedScript;
     useDropdown = settings.useDropdown;
     updateUI();
   }
@@ -324,7 +325,7 @@
   SWAM.registerExtension({
     name: 'Predator Dodges',
     id: 'predator.dodges',
-    description: 'Add different dodges to your Predator ship!',
+    description: 'Automate dodges for Predator ship.',
     author: 'Monarch',
     version: '1.0',
     settingsProvider: settingsProvider()
