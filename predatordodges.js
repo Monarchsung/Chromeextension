@@ -296,7 +296,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
