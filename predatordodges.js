@@ -6,23 +6,21 @@
   let currentScript = 1;
   let isRunning = false;
   let useDropdown = false;
-  let selectedScript = 1;
 
   // Create the UI element
-  const uiElement = document.createElement('div');
-  uiElement.id = 'scriptStatus';
-  uiElement.style.position = 'fixed';
-  uiElement.style.top = '10px';
-  uiElement.style.right = 'calc(40% - 5in)'; // Adjusted to be 5 inches more to the right
-  uiElement.style.padding = '10px';
-  uiElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-  uiElement.style.color = 'white';
-  uiElement.style.zIndex = '1000';
-  uiElement.style.display = 'block'; // Always display
-  document.body.appendChild(uiElement);
+  const statusUI = document.createElement('div');
+  statusUI.id = 'scriptStatus';
+  statusUI.style.position = 'fixed';
+  statusUI.style.top = '10px';
+  statusUI.style.right = 'calc(40% - 5in)'; // Adjusted to be 5 inches more to the right
+  statusUI.style.padding = '10px';
+  statusUI.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  statusUI.style.color = 'white';
+  statusUI.style.zIndex = '1000';
+  document.body.appendChild(statusUI);
 
   function updateUI() {
-    uiElement.innerHTML = `Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${currentScript}`;
+    statusUI.innerHTML = `Use Dropdown to Select a Specific Script<br>Script Status: ${isRunning ? 'Running' : 'Paused'}<br>Current Script: ${currentScript}`;
   }
 
   document.addEventListener('keydown', function(event) {
@@ -64,7 +62,7 @@
     // Execute the current script with 'q' and 'e'
     if (isRunning && (event.key === 'q' || event.key === 'e')) {
       let arrowSide = event.key === 'q' ? 'ArrowLeft' : 'ArrowRight';
-      executeScript(useDropdown ? selectedScript : currentScript, 'ArrowDown', arrowSide);
+      executeScript(currentScript, 'ArrowDown', arrowSide);
     }
   });
 
@@ -298,7 +296,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
@@ -316,7 +314,7 @@
   }
 
   function onSettingsChanged(settings) {
-    selectedScript = settings.selectedScript;
+    currentScript = settings.selectedScript;
     useDropdown = settings.useDropdown;
     updateUI();
   }
@@ -329,8 +327,4 @@
     version: '1.0',
     settingsProvider: settingsProvider()
   });
-
-  // Initialize the extension
-  updateUI();
-
 })();
