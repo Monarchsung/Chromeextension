@@ -38,14 +38,14 @@
     if (event.key === 'p') {
       isRunning = true;
       updateUI();
-      sendMessageToBackground('Predator dodges begins');
+      displayMessage('Predator dodges begins');
       console.log("Predator dodges begins");
     }
     // Pause the script
     else if (event.code === 'Pause') {
       isRunning = false;
       updateUI();
-      sendMessageToBackground('Predator dodges ends');
+      displayMessage('Predator dodges ends');
       console.log("Predator dodges ends");
     }
 
@@ -285,8 +285,8 @@
     document.dispatchEvent(keyUpEvent);
   }
 
-  function sendMessageToBackground(message) {
-    chrome.runtime.sendMessage({ type: 'updateStatus', message: message });
+  function displayMessage(message) {
+    UI.addChatMessage(message); // Display the message in StarMash chat
   }
 
   // StarMash Extension
