@@ -13,7 +13,7 @@
   uiElement.id = 'scriptStatus';
   uiElement.style.position = 'fixed';
   uiElement.style.top = '10px';
-  uiElement.style.right = '40%'; // Adjusted to be between middle and far right
+  uiElement.style.right = '20%'; // Adjusted to be between middle and far right
   uiElement.style.padding = '10px';
   uiElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
   uiElement.style.color = 'white';
