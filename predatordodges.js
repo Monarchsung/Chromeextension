@@ -49,7 +49,7 @@
       console.log("Predator dodges ends");
     }
 
-    // Switch between scripts
+    // Switch between scripts only if dropdown is not in use
     if (!useDropdown && isRunning && event.key >= '1' && event.key <= '9') {
       currentScript = parseInt(event.key);
       updateUI();
@@ -297,7 +297,7 @@
     }, onSettingsChanged);
 
     let section = sp.addSection('Predator Dodges Settings');
-    section.addBoolean('useDropdown', 'Use Dropdown to Select Script');
+    section.addBoolean('useDropdown', 'Use Dropdown to Select a Specific Script');
     section.addValuesField('selectedScript', 'Select Script', {
       1: 'Script 1',
       2: 'Script 2',
@@ -331,5 +331,13 @@
 
   // Initialize the UI
   updateUI();
+
+  // Monitor the script execution if dropdown is enabled
+  setInterval(() => {
+    if (useDropdown && isRunning) {
+      let arrowSide = heldKey === 'q' ? 'ArrowLeft' : 'ArrowRight';
+      executeScript(currentScript, 'ArrowDown', arrowSide);
+    }
+  }, 1000);
 
 })();
